@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="cachelab_handout"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/home/student/CS2011/cachelab-handout/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -f &quot;/home/student/CS2011/cachelab-handout/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -f &quot;/home/student/CS2011/cachelab-handout/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/home/student/CS2011/cachelab-handout/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/home/student/CS2011/cachelab-handout/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="/home/student/CS2011/cachelab-handout/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -f &quot;/home/student/CS2011/cachelab-handout/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -f &quot;/home/student/CS2011/cachelab-handout/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/home/student/CS2011/cachelab-handout/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/home/student/CS2011/cachelab-handout/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="/home/student/CS2011/cachelab-handout/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -f &quot;/home/student/CS2011/cachelab-handout/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -f &quot;/home/student/CS2011/cachelab-handout/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/home/student/CS2011/cachelab-handout/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/home/student/CS2011/cachelab-handout/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="cachelab_handout">
+				<Option output="/home/student/CS2011/cachelab-handout/cmake-build-debug/cachelab_handout" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/student/CS2011/cachelab-handout/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/include/c++/5"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
+					<Add directory="/usr/include/c++/5/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -f &quot;/home/student/CS2011/cachelab-handout/cmake-build-debug/Makefile&quot;  VERBOSE=1 cachelab_handout"/>
+					<CompileFile command="/usr/bin/make -f &quot;/home/student/CS2011/cachelab-handout/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/home/student/CS2011/cachelab-handout/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/home/student/CS2011/cachelab-handout/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="cachelab_handout/fast">
+				<Option output="/home/student/CS2011/cachelab-handout/cmake-build-debug/cachelab_handout" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/student/CS2011/cachelab-handout/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/include/c++/5"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/5"/>
+					<Add directory="/usr/include/c++/5/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -f &quot;/home/student/CS2011/cachelab-handout/cmake-build-debug/Makefile&quot;  VERBOSE=1 cachelab_handout/fast"/>
+					<CompileFile command="/usr/bin/make -f &quot;/home/student/CS2011/cachelab-handout/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/home/student/CS2011/cachelab-handout/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/home/student/CS2011/cachelab-handout/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/home/student/CS2011/cachelab-handout/Makefile">
+			<Option target="cachelab_handout"/>
+		</Unit>
+		<Unit filename="/home/student/CS2011/cachelab-handout/README">
+			<Option target="cachelab_handout"/>
+		</Unit>
+		<Unit filename="/home/student/CS2011/cachelab-handout/cachelab.c">
+			<Option target="cachelab_handout"/>
+		</Unit>
+		<Unit filename="/home/student/CS2011/cachelab-handout/cachelab.h">
+			<Option target="cachelab_handout"/>
+		</Unit>
+		<Unit filename="/home/student/CS2011/cachelab-handout/csim-ref">
+			<Option target="cachelab_handout"/>
+		</Unit>
+		<Unit filename="/home/student/CS2011/cachelab-handout/csim.c">
+			<Option target="cachelab_handout"/>
+		</Unit>
+		<Unit filename="/home/student/CS2011/cachelab-handout/driver.py">
+			<Option target="cachelab_handout"/>
+		</Unit>
+		<Unit filename="/home/student/CS2011/cachelab-handout/test-csim">
+			<Option target="cachelab_handout"/>
+		</Unit>
+		<Unit filename="/home/student/CS2011/cachelab-handout/test-trans.c">
+			<Option target="cachelab_handout"/>
+		</Unit>
+		<Unit filename="/home/student/CS2011/cachelab-handout/tracegen.c">
+			<Option target="cachelab_handout"/>
+		</Unit>
+		<Unit filename="/home/student/CS2011/cachelab-handout/traces/dave.trace">
+			<Option target="cachelab_handout"/>
+		</Unit>
+		<Unit filename="/home/student/CS2011/cachelab-handout/traces/long.trace">
+			<Option target="cachelab_handout"/>
+		</Unit>
+		<Unit filename="/home/student/CS2011/cachelab-handout/traces/trans.trace">
+			<Option target="cachelab_handout"/>
+		</Unit>
+		<Unit filename="/home/student/CS2011/cachelab-handout/traces/yi.trace">
+			<Option target="cachelab_handout"/>
+		</Unit>
+		<Unit filename="/home/student/CS2011/cachelab-handout/traces/yi2.trace">
+			<Option target="cachelab_handout"/>
+		</Unit>
+		<Unit filename="/home/student/CS2011/cachelab-handout/trans.c">
+			<Option target="cachelab_handout"/>
+		</Unit>
+		<Unit filename="/home/student/CS2011/cachelab-handout/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>
