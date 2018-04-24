@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "cachelab.h"
 #include "stdio.h"
 #include "stdlib.h"
@@ -36,6 +37,24 @@ int main(int argc, char** argv) {
 	 -t <tracefile>: Name of the valgrind trace to replay **/
 
 	/** CHECK FOR CORRECT INPUT **/
+
+// TODO Args with flags
+//    if(argv <= 8) {
+//        printf("./csim-ref: Missing required command line argument\n"
+//                       "Usage: ./csim-ref [-hv] -s <num> -E <num> -b <num> -t <file>\n"
+//                       "Options:\n"
+//                       "  -h         Print this help message.\n"
+//                       "  -v         Optional verbose flag.\n"
+//                       "  -s <num>   Number of set index bits.\n"
+//                       "  -E <num>   Number of lines per set.\n"
+//                       "  -b <num>   Number of block offset bits.\n"
+//                       "  -t <file>  Trace file.\n"
+//                       "\n"
+//                       "Examples:\n"
+//                       "  linux>  ./csim-ref -s 4 -E 1 -b 4 -t traces/yi.trace\n"
+//                       "  linux>  ./csim-ref -v -s 8 -E 2 -b 4 -t traces/yi.trace\n");
+//        return 1;
+//    }
 
 	if (argc < 4) {
 		printf("You have entered the wrong inputs, please try again");
@@ -82,5 +101,4 @@ int main(int argc, char** argv) {
 	/** RETURN **/
 	printSummary(hit_count, miss_count, eviction_count);
 	return 0;
-
 }
