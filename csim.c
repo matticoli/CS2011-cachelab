@@ -5,21 +5,22 @@
 //Ann Jicha ahjicha
 //Mikel Matticoli mmatticoli
 
+
 //struct representing a line in cache memory
 typedef struct cacheLine {
 	unsigned long tag;
 	int isValid; //1 if valid, 0 if not
-} cacheLine;
+} CacheLine;
 
 //struct representing a set of cache line(s)
 typedef struct cacheSet {
-	cacheLine* lines;
-} cacheSet;
+	CacheLine* lines;
+} CacheSet;
 
 //struct representing the whole cache
 typedef struct cache {
-	cacheSet* set;
-} cache;
+	CacheSet* set;
+} Cache;
 
 int main(int argc, char** argv) {
 	//counters for hits, misses, and evictions
@@ -63,14 +64,15 @@ int main(int argc, char** argv) {
 
 	/** PARSE INPUT **/
 
-	int s = *argv[1]; //number of set index bits
+	int s = *argv[1]; //number of set index bytes
 	int e = *argv[2]; //associativity
-	int b = *argv[3]; //number of block bits
+	int b = *argv[3]; //number of block bytes
+
 
 	/** MAKE CACHE BASED ON SPECS (probably could/should be a separate function)**/
 
 	//allocate memory for cache
-	malloc((s * e * b) / 8); // Divide by 8 to convert bits to bytes
+	malloc(s * e * b);
 
 	//find cache dimensions
 	int numSets = 2 << s;
@@ -80,7 +82,7 @@ int main(int argc, char** argv) {
 	// initialize cache
 	for (int i = 0; i < numSets; i++) {
 		for (int j = 0; j < numLines; j++) {
-			cacheLine line;
+			CacheLine line;
 			line.tag = j; // I think? I'm not sure
 			line.isValid = 0; //before anything is stored, all invalid
 		}
@@ -91,12 +93,30 @@ int main(int argc, char** argv) {
 
 	/** DEAL WITH VALGRIND **/
 
+	//the file needs to be opened somehow
+	FILE *valgrind, *cacheInstruct;
+	char* mode = "r";
+	fscanf();
+
 	/**HITS, MISSES, AND EVICTIONS **/
 
 	//within a for loop (row-major), search for the correct valid and index bit
 	//if the val bit is invalid or there is no matching index, increment miss counter and load in (also eviction?)
 	//if else, increment hit counter
 	//evict, increment eviction counter
+	char whatDo; //somehow get this from input
+	if(whatDo == 'I'){
+
+	}
+	if(whatDo == 'L'){
+
+	}
+	if(whatDo == 'M'){
+		//if instruction is M, will always be a hit
+		hit_count++;
+
+		//would there be something about eviction here?
+	}
 
 	/** RETURN **/
 	printSummary(hit_count, miss_count, eviction_count);
