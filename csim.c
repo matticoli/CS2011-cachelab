@@ -4,6 +4,7 @@
 #include <getopt.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 //Ann Jicha ahjicha
 //Mikel Matticoli mmatticoli
 
@@ -24,6 +25,25 @@ typedef struct cache {
 	CacheSet* set;
 } Cache;
 
+
+void printUsage() {
+	printf("./csim-ref: Missing required command line argument\n"
+				   "Usage: ./csim-ref [-hv] -s <num> -E <num> -b <num> -t <file>\n"
+				   "Arguments must be in order!\n\n"
+				   "Options:\n"
+				   "  -h         Print this help message.\n"
+				   "  -v         Optional verbose flag.\n"
+				   "  -s <num>   Number of set index bits.\n"
+				   "  -E <num>   Number of lines per set.\n"
+				   "  -b <num>   Number of block offset bits.\n"
+				   "  -t <file>  Trace file.\n"
+				   "\n"
+				   "Examples:\n"
+				   "  linux>  ./csim-ref -s 4 -E 1 -b 4 -t traces/yi.trace\n"
+				   "  linux>  ./csim-ref -v -s 8 -E 2 -b 4 -t traces/yi.trace\n");
+	exit(1);
+}
+
 int main(int argc, char** argv) {
 	//counters for hits, misses, and evictions
 	int hit_count = 0;
@@ -41,37 +61,50 @@ int main(int argc, char** argv) {
 
 	/** CHECK FOR CORRECT INPUT **/
 
-// TODO Args with flags
-//    if(argv <= 8) {
-//        printf("./csim-ref: Missing required command line argument\n"
-//                       "Usage: ./csim-ref [-hv] -s <num> -E <num> -b <num> -t <file>\n"
-//                       "Options:\n"
-//                       "  -h         Print this help message.\n"
-//                       "  -v         Optional verbose flag.\n"
-//                       "  -s <num>   Number of set index bits.\n"
-//                       "  -E <num>   Number of lines per set.\n"
-//                       "  -b <num>   Number of block offset bits.\n"
-//                       "  -t <file>  Trace file.\n"
-//                       "\n"
-//                       "Examples:\n"
-//                       "  linux>  ./csim-ref -s 4 -E 1 -b 4 -t traces/yi.trace\n"
-//                       "  linux>  ./csim-ref -v -s 8 -E 2 -b 4 -t traces/yi.trace\n");
-//        return 1;
-//    }
-
 
 	//WE'RE SUPPOSED TO USE GETOPT HERE
 	//man 3 getopt
-	if (argc < 4) {
-		printf("You have entered the wrong inputs, please try again");
-		return 1;
+	int verbose = 0;
+	int s, e, b;// s e and b params
+	char *t; // file name
+
+	if(argc >= 9) { // Verbose flag and all other flags specified
+
+		if(argc >= 10 && strcmp(argv[1],"-v") >= 0 && strcmp(argv[2],"-s") >= 0 && strcmp(argv[4],"-E") >= 0 &&
+		     			 strcmp(argv[6],"-b") >= 0 && strcmp(argv[8],"-t") >= 0) {
+			// Verbose and all args specified
+			verbose = 1;
+
+			// Get data from args
+			s = (int)atoi(argv[3]); //number of set index bytes
+			e = (int)atoi(argv[5]); //associativity
+			b = (int)atoi(argv[7]); //number of block bytes
+			t = argv[9];
+
+		} else if(strcmp(argv[1],"-s") >= 0 && strcmp(argv[3],"-E") >= 0
+				   && strcmp(argv[5],"-b") >= 0 && strcmp(argv[7],"-t") >= 0) {
+			// Not verbose and all strings specified
+			// Get data from args
+			s = (int)atoi(argv[2]); //number of set index bytes
+			e = (int)atoi(argv[4]); //associativity
+			b = (int)atoi(argv[6]); //number of block bytes
+			t = argv[8];
+		} else {
+			// Not all flags specified
+			printUsage();
+		}
+
+	} else {
+		printUsage();
+	}
+
+	if(!s || !e || !b) {
+		printUsage();
 	}
 
 	/** PARSE INPUT **/
 
-	int s = *argv[1]; //number of set index bytes
-	int e = *argv[2]; //associativity
-	int b = *argv[3]; //number of block bytes
+
 
 	/** MAKE CACHE BASED ON SPECS (probably could/should be a separate function)**/
 
@@ -86,46 +119,86 @@ int main(int argc, char** argv) {
 	// initialize cache
 	for (int i = 0; i < numSets; i++) {
 		for (int j = 0; j < numLines; j++) {
-			CacheLine line;
-			line.tag = j; // I think? I'm not sure
-			line.isValid = 0; //before anything is stored, all invalid
+			CacheLine *line = malloc(sizeof(CacheLine));
+			line->isValid = 0; //before anything is stored, all invalid
+			line->tag = 0; // Tag starts blank
+			line->offset = 0;
 		}
 	}
+
+	//TODO: Get rid of this once blocksize in use
+	if(verbose) {
+		printf("%s, %d", t, blockSize);
+	}
+
+	// Open specified trace in read mode
+	FILE *valgrind = fopen(t, "r");
+	// If open failed, error and exit TODO
+
+	do {
+		char *s = malloc(sizeof(char) * 20); // valgrind line
+		fgets(s, 20, valgrind);
+		if(s) { // If not nullptr
+
+			// Get instruction
+			char instruction = s[0] == ' ' ? s[1] : s[0];
+
+			// Get tag and numBytes
+			char *tagString = malloc(sizeof(char) * 10); // Assume 10 max length of string (16^10 possible addresses)
+			char *numBytesString = malloc(sizeof(char) * 2);
+			sscanf(s+3, "%s,%s", tagString, numBytesString);
+			long tag = (long)strtol(tagString, NULL, 16);
+			int numBytes = (int)atoi(numBytesString);
+
+			if(verbose) {
+				printf("Instr: %c\t Addr %s\t%ld\t NumBytes %d\n", instruction, tagString, tag, numBytes);
+//				printf("Instr %c\t", instruction);
+//				printf("Addr %s\t", tagString);
+//				printf("%ld\t", tag);
+			}
+
+//			free(tagString);
+//			free(numBytesString);
+//			free(s);
+
+		}
+
+	} while(s != EOF);// check for eof TODO FIX
 
 	//cache CacheUsed[numLines][numSets];
 	//CacheUsed.cacheset = something; //gotta put somethin in
 
 	/** DEAL WITH VALGRIND **/
-	char whatDo;
-	char* tag;
-	int size;
+//	char whatDo;
+//	char* tag;
+//	int size;
+//
+//	//the file needs to be opened somehow
+//	FILE *valgrind, *cacheInstruct;
+////	cacheInstruct = fopen(valgrind, r);
+//
+////	int fscanf(FILE *valgrind, char *fomat," %c %s, %d", &whatDo, &tag, &size);
+//	fclose(valgrind);
 
-	//the file needs to be opened somehow
-	FILE *valgrind, *cacheInstruct;
-	cacheInstruct = fopen(valgrind, r);
-
-	int fscanf(FILE *valgrind, char *fomat," %c %s, %d", &whatDo, &tag, &size);
-	fclose(valgrind);
-
-	/**HITS, MISSES, AND EVICTIONS **/
-
-	char whatDo; //somehow get this from input
-
-	switch (whatDo) {
-	case 'I':
-		//this is an instruction load
-	case 'L':
-		//this is a data load;
-		//at most one cache miss
-	case 'S':
-		//this is a data store
-		//at most one cache miss
-	case 'M':
-		//this is a data load followed by a data store
-		//two cache hits or a hit and a miss followed by a possible eviction
-	default:
-		break;
-	}
+//	/**HITS, MISSES, AND EVICTIONS **/
+//
+////	whatDo; //somehow get this from input
+//
+//	switch (whatDo) {
+//	case 'I':
+//		//this is an instruction load
+//	case 'L':
+//		//this is a data load;
+//		//at most one cache miss
+//	case 'S':
+//		//this is a data store
+//		//at most one cache miss
+//	case 'M':
+//		//this is a data load followed by a data store
+//		//two cache hits or a hit and a miss followed by a possible eviction
+//	default:
+//		break;
+//	}
 
 	/** RETURN **/
 	printSummary(hit_count, miss_count, eviction_count);
