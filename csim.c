@@ -64,6 +64,8 @@ int main(int argc, char** argv) {
 
 	//WE'RE SUPPOSED TO USE GETOPT HERE
 	//man 3 getopt
+
+
 	int verbose = 0;
 	int s, e, b;// s e and b params
 	char *t; // file name
@@ -168,37 +170,46 @@ int main(int argc, char** argv) {
 	//cache CacheUsed[numLines][numSets];
 	//CacheUsed.cacheset = something; //gotta put somethin in
 
-	/** DEAL WITH VALGRIND **/
-//	char whatDo;
-//	char* tag;
-//	int size;
-//
-//	//the file needs to be opened somehow
-//	FILE *valgrind, *cacheInstruct;
-////	cacheInstruct = fopen(valgrind, r);
-//
-////	int fscanf(FILE *valgrind, char *fomat," %c %s, %d", &whatDo, &tag, &size);
-//	fclose(valgrind);
 
-//	/**HITS, MISSES, AND EVICTIONS **/
-//
-////	whatDo; //somehow get this from input
-//
-//	switch (whatDo) {
-//	case 'I':
-//		//this is an instruction load
-//	case 'L':
-//		//this is a data load;
-//		//at most one cache miss
-//	case 'S':
-//		//this is a data store
-//		//at most one cache miss
-//	case 'M':
-//		//this is a data load followed by a data store
-//		//two cache hits or a hit and a miss followed by a possible eviction
-//	default:
-//		break;
-//	}
+	/**HITS, MISSES, AND EVICTIONS **/
+
+
+	switch (instruction) {
+	case 'I':
+		//this is an instruction load
+
+	case 'L':
+		//this is a data load; (I'm guessing a read?)
+		//at most one cache miss
+		if(cache->isValid == 1){
+			//if the valid bit of the line of the given address is set
+			hit_count++;
+		}
+		if else{
+			//nothing is in this location, cache miss
+			miss_count++;
+		}
+
+	case 'S':
+		//this is a data store (I'm guessing a write?)
+		//at most one cache miss
+		if(cache->isValid == 1 && ){
+			//if there is data there and the address is valid, data is replaced
+			hit_count++;
+			eviction_count++;
+		}
+		if else(cache->isValid == 0 &&){
+			//if there is no data at the memory address and the address is valid but data does not match
+			miss_count++;
+		}
+
+	case 'M':
+		//this is a data load followed by a data store
+		//two cache hits or a hit and a miss followed by a possible eviction
+
+	default:
+		break;
+	}
 
 	/** RETURN **/
 	printSummary(hit_count, miss_count, eviction_count);
