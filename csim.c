@@ -44,6 +44,13 @@ void printUsage() {
 	exit(1);
 }
 
+int getSetIndex(long tag){
+	tag >> b //get rid of block bits
+	tag << (64 - s - b -b) //tag bits
+	tag >> (64 - s) //set index
+	return tag;
+}
+
 int main(int argc, char** argv) {
 	//counters for hits, misses, and evictions
 	int hit_count = 0;
@@ -118,7 +125,7 @@ int main(int argc, char** argv) {
 	int numLines = 2 << e;
 	int blockSize = 2 << b;
 
-	// initialize cache
+	// initialize cache with input dimensions
 	for (int i = 0; i < numSets; i++) {
 		for (int j = 0; j < numLines; j++) {
 			CacheLine *line = malloc(sizeof(CacheLine));
@@ -152,6 +159,10 @@ int main(int argc, char** argv) {
 			long tag = (long)strtol(tagString, NULL, 16);
 			int numBytes = (int)atoi(numBytesString);
 
+			//THE SET INDEX (still confused)
+
+
+
 			if(verbose) {
 				printf("Instr: %c\t Addr %s\t%ld\t NumBytes %d\n", instruction, tagString, tag, numBytes);
 //				printf("Instr %c\t", instruction);
@@ -165,7 +176,7 @@ int main(int argc, char** argv) {
 
 		}
 
-	} while(s != EOF);// check for eof TODO FIX
+	} while(s != EOF);// check for EOF TODO FIX
 
 	//cache CacheUsed[numLines][numSets];
 	//CacheUsed.cacheset = something; //gotta put somethin in
@@ -175,9 +186,10 @@ int main(int argc, char** argv) {
 
 //TODO: find a way to search cache for memory addresses
 
+	//L and S are treated the same way, M is essentially that logic but doubled
 	switch (instruction) {
 	case 'I':
-		//this is an instruction load
+		//this is an instruction load (ignore, it's just where we start)
 
 	case 'L':
 		//this is a data load; (I'm guessing a read?)
@@ -186,7 +198,7 @@ int main(int argc, char** argv) {
 			//if the valid bit of the line of the given address is set and the tag matches
 			hit_count++;
 		}
-		if else{on,
+		if else{
 			//nothing is in this location, the bit is not valid or the tag does not match, cache miss
 			miss_count++;
 
@@ -220,10 +232,14 @@ int main(int argc, char** argv) {
 	return 0;
 }
 
+
+
+
+
 /**
  * findLine: called on the cache to see if memory holds given address
  */
-cacheLine findLine(long tag, char instruction){
+/**cacheLine findLine(long tag, char instruction){
 	for (int i = 0; i < numSets; i++) {
 			for (int j = 0; j < numLines; j++) {
 				if(this->tag == tag){
@@ -234,8 +250,4 @@ cacheLine findLine(long tag, char instruction){
 }
 
 
-void cacheWrite(long tag, cacheLine line, int size){
-	line->isValid = 1;
-	line->tag = tag;
-	line->offSet = size; //MAYBE? DOES ARITHMETIC HAVE TO BE DONE HERE?
-}
+
