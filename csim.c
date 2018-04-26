@@ -173,7 +173,7 @@ int main(int argc, char** argv) {
 
 	/**HITS, MISSES, AND EVICTIONS **/
 
-//TODO: find a way to search cache for memory addesses
+//TODO: find a way to search cache for memory addresses
 
 	switch (instruction) {
 	case 'I':
@@ -182,22 +182,25 @@ int main(int argc, char** argv) {
 	case 'L':
 		//this is a data load; (I'm guessing a read?)
 		//at most one cache miss
-		if(cache->isValid == 1){
-			//if the valid bit of the line of the given address is set
+		if(cache->isValid == 1 && strcmp(cacheLine->tag, tag) == 0){
+			//if the valid bit of the line of the given address is set and the tag matches
 			hit_count++;
 		}
-		if else{
-			//nothing is in this location, cache miss
+		if else{on,
+			//nothing is in this location, the bit is not valid or the tag does not match, cache miss
 			miss_count++;
+
 		}
 
 	case 'S':
 		//this is a data store (I'm guessing a write?)
 		//at most one cache miss
-		if(cache->isValid == 1 && ){
+		if(cache->isValid == 1 && strcmp(cacheLine->tag, tag) == 0){
 			//if there is data there and the address is valid, data is replaced
 			hit_count++;
+
 			eviction_count++;
+			cacheLine->tag = tag;
 		}
 		if else(cache->isValid == 0 &&){
 			//if there is no data at the memory address and the address is valid but data does not match
@@ -215,4 +218,24 @@ int main(int argc, char** argv) {
 	/** RETURN **/
 	printSummary(hit_count, miss_count, eviction_count);
 	return 0;
+}
+
+/**
+ * findLine: called on the cache to see if memory holds given address
+ */
+cacheLine findLine(long tag, char instruction){
+	for (int i = 0; i < numSets; i++) {
+			for (int j = 0; j < numLines; j++) {
+				if(this->tag == tag){
+					return this;
+				}
+			}
+		}
+}
+
+
+void cacheWrite(long tag, cacheLine line, int size){
+	line->isValid = 1;
+	line->tag = tag;
+	line->offSet = size; //MAYBE? DOES ARITHMETIC HAVE TO BE DONE HERE?
 }
