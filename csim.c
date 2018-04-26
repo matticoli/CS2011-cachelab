@@ -1,15 +1,17 @@
 #include <stdio.h>
 #include "cachelab.h"
 #include "stdio.h"
-#include "stdlib.h"
+#include <getopt.h>
+#include <stdlib.h>
+#include <unistd.h>
 //Ann Jicha ahjicha
 //Mikel Matticoli mmatticoli
-
 
 //struct representing a line in cache memory
 typedef struct cacheLine {
 	unsigned long tag;
 	int isValid; //1 if valid, 0 if not
+	int offset;
 } CacheLine;
 
 //struct representing a set of cache line(s)
@@ -57,6 +59,9 @@ int main(int argc, char** argv) {
 //        return 1;
 //    }
 
+
+	//WE'RE SUPPOSED TO USE GETOPT HERE
+	//man 3 getopt
 	if (argc < 4) {
 		printf("You have entered the wrong inputs, please try again");
 		return 1;
@@ -67,7 +72,6 @@ int main(int argc, char** argv) {
 	int s = *argv[1]; //number of set index bytes
 	int e = *argv[2]; //associativity
 	int b = *argv[3]; //number of block bytes
-
 
 	/** MAKE CACHE BASED ON SPECS (probably could/should be a separate function)**/
 
@@ -92,30 +96,35 @@ int main(int argc, char** argv) {
 	//CacheUsed.cacheset = something; //gotta put somethin in
 
 	/** DEAL WITH VALGRIND **/
+	char whatDo;
+	char* tag;
+	int size;
 
 	//the file needs to be opened somehow
 	FILE *valgrind, *cacheInstruct;
-	char* mode = "r";
-	fscanf();
+	cacheInstruct = fopen(valgrind, r);
+
+	int fscanf(FILE *valgrind, char *fomat," %c %s, %d", &whatDo, &tag, &size);
+	fclose(valgrind);
 
 	/**HITS, MISSES, AND EVICTIONS **/
 
-	//within a for loop (row-major), search for the correct valid and index bit
-	//if the val bit is invalid or there is no matching index, increment miss counter and load in (also eviction?)
-	//if else, increment hit counter
-	//evict, increment eviction counter
 	char whatDo; //somehow get this from input
-	if(whatDo == 'I'){
 
-	}
-	if(whatDo == 'L'){
-
-	}
-	if(whatDo == 'M'){
-		//if instruction is M, will always be a hit
-		hit_count++;
-
-		//would there be something about eviction here?
+	switch (whatDo) {
+	case 'I':
+		//this is an instruction load
+	case 'L':
+		//this is a data load;
+		//at most one cache miss
+	case 'S':
+		//this is a data store
+		//at most one cache miss
+	case 'M':
+		//this is a data load followed by a data store
+		//two cache hits or a hit and a miss followed by a possible eviction
+	default:
+		break;
 	}
 
 	/** RETURN **/
