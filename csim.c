@@ -173,6 +173,7 @@ int main(int argc, char** argv) {
 
 	/**HITS, MISSES, AND EVICTIONS **/
 
+//TODO: find a way to search cache for memory addesses
 
 	switch (instruction) {
 	case 'I':
