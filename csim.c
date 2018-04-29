@@ -6,7 +6,7 @@
 #include <unistd.h>
 #include <string.h>
 //Ann Jicha ahjicha
-//Mikel Matticoli mmatticoli
+//Mikel Matticoli mamatticoli
 
 //struct representing a line in cache memory
 typedef struct cacheLine {
