@@ -81,25 +81,6 @@ void processInstruction(CacheLine *line, int setIndex, long tag, int numLines);
 
 
 int main(int argc, char **argv) {
-//
-//
-//
-//    printf("please enter s e b valgrind");
-//    /**		where the arguments are:
-//     -h: Optional help flag that prints usage info
-//     -v: Optional verbose flag that displays trace info
-//     -s <s>: Number of set index bits (the number of sets is 2s)
-//     -E <E>: Associativity (number of lines per set)
-//     -b <b>: Number of block bits (the block size is 2b)
-//     -t <tracefile>: Name of the valgrind trace to replay **/
-//
-//    /** CHECK FOR CORRECT INPUT **/
-
-
-    // TODO geopt for arg parsing?
-    // man 3 getopt
-
-
     int verbose = 0;
     int s, e, b;// s e and b params
     char *t; // file name
@@ -135,6 +116,7 @@ int main(int argc, char **argv) {
     }
 
     if (!s || !e || !b) {
+    	printf("Must specify non-zero values for s, E, and b\n\n");
         printUsage();
     }
 
@@ -148,8 +130,10 @@ int main(int argc, char **argv) {
 
     // find cache dimensions
     int numSets = 2 << s;
-    int numLines = 2 << e;
+    int numLines = e;
     int blockSize = 2 << b;
+
+    if(DEBUG) printf("NumSets: %d\tNumLines: %d\tBlockSize: %d", numSets, numLines, blockSize);
 
 
     // initialize cache with input dimensions
@@ -199,8 +183,15 @@ int main(int argc, char **argv) {
 
             if(DEBUG) printf("Instruction parsed\n");
 
-            if (verbose && (loc || numBytes)) {
-            	printf("%s ", (str[0] == ' ' ? str + 1 : str));
+            if (verbose && (loc || numBytes) && instruction != 'I') {
+            	// Print valgrind line to be processed
+            	printf("%c %lx,%d ", instruction, loc, numBytes);
+            }
+
+            // Prevent parsing blank valgrind line
+            if(!numBytes) {
+            	// Break from while loop
+            	break;
             }
 
             // Now process the instruction
@@ -210,8 +201,13 @@ int main(int argc, char **argv) {
 
             // Find cache line
             long tag = getTagFromLoc(loc, blockSize);
-            int setIndex = getSetIndex(tag, s, b);
+            int setIndex = getSetIndex(loc, s, b);
             CacheLine *line = getLine(setIndex, tag, numLines);
+
+            // Prevents parsing blank valgrind line just before eof
+            if(setIndex < 0) {
+            	break;
+            }
 
             switch (instruction) {
                 case 'M':
@@ -235,9 +231,6 @@ int main(int argc, char **argv) {
         }
 
     } while (strlen(str) > 0);
-
-    printf("\n");
-
 
     printSummary(hit_count, miss_count, eviction_count);
     return 0;
@@ -263,15 +256,17 @@ void printUsage() {
 
 long getTagFromLoc(long loc, int lineLength) {
     long tag = loc - (loc % lineLength);// (tag is loc % lineSize);
-    if(DEBUG) printf("\nConverted loc %ld to tag %ld (line %d)\n", loc, tag, lineLength);
+    if(DEBUG) printf("\nConverted loc %ld to tag %ld (lineLen %d)\n", loc, tag, lineLength);
     return tag;
 }
 
-int getSetIndex(long tag, int s, int b) {
-    tag = tag >> b; // Get rid of block bits
-    tag = tag << (64 - s - b - b); // Tag bits
-    tag = tag >> (64 - s); // Set index
-    return tag;
+int getSetIndex(long tag, int s, int b) { //TODO refactor tag -> loc
+    int setindex = tag >> b; // Get rid of block bits
+    int tagBits = setindex >> s;
+    setindex = setindex ^ (tagBits << s);
+    //tag = tag << (64 - s - b - b); // Tag bits
+    //tag = tag >> (64 - s); // Set index
+    return setindex;
 }
 
 CacheLine *getLine(int setIndex, long tag, int linesPerSet) {
@@ -290,13 +285,16 @@ CacheLine *getEmptyLine(int setIndex, int numLines) {
 	CacheSet *set = cache->sets[setIndex];
 	CacheLine *line;
 	time_t leastRecent = time(NULL);
+	if (DEBUG) printf("Looking for empty line in set %d...\n", setIndex);
 	for(int i = 0; i < numLines; i++) {
 		CacheLine *currentLine = set->lines[i];
+		if (DEBUG) printf("Index %d isValid %d tag %ld\n", i, currentLine->isValid, currentLine->tag);
 		if(!(currentLine->isValid)) {
 			return currentLine;
 		} else {
 			// valid block, check time
-			if(currentLine->access < leastRecent) {
+			if(DEBUG) printf("Line is valid, compare access time %d to leastRecent %d\n", (int)currentLine->access, (int)leastRecent);
+			if(!line || currentLine->access <= leastRecent) {
 				leastRecent = currentLine->access;
 				line = currentLine;
 			}
@@ -304,7 +302,7 @@ CacheLine *getEmptyLine(int setIndex, int numLines) {
 	}
 	printf("eviction ");
 	eviction_count++;
-//	line->isValid = 0;
+	line->isValid = 0;
 	return line;
 }
 
@@ -317,12 +315,10 @@ void processInstruction(CacheLine *line, int setIndex, long tag, int numLines) {
         miss_count++;
         printf("miss ");
         CacheLine *line = getEmptyLine(setIndex, numLines);
-        if(!line || line->isValid) {
-        	printf("Something broke\n");
-        	exit(1);
-        } else {
+        if(line) {
         	line->tag = tag;
         	line->isValid = 1;
+        	line->access = time(NULL);
         }
     } else {
         // Cache Hit, increment counter and continue
