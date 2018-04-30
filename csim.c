@@ -17,6 +17,7 @@ typedef struct cacheLine {
 
 //struct representing a set of cache line(s)
 typedef struct cacheSet {
+	int setIndex;
 	CacheLine* lines;
 } CacheSet;
 
@@ -44,11 +45,25 @@ void printUsage() {
 	exit(1);
 }
 
-int getSetIndex(long tag){
-	tag >> b //get rid of block bits
-	tag << (64 - s - b -b) //tag bits
-	tag >> (64 - s) //set index
+int getSetIndex(long tag, int s, int b){
+	tag = tag >> b; //get rid of block bits
+	tag = tag << (64 - s - b -b); //tag bits
+	tag = tag >> (64 - s); //set index
 	return tag;
+}
+
+/**
+ * findLine: called on the cache to see if memory holds given address
+ */
+
+cacheLine findLine(int index, long tag, char instruction){
+	for (int i = 0; i < numSets; i++) {
+			for (int j = 0; j < numLines; j++) {
+				if(this->tag == tag){
+					return this;
+				}
+			}
+		}
 }
 
 int main(int argc, char** argv) {
@@ -178,8 +193,6 @@ int main(int argc, char** argv) {
 
 	} while(s != EOF);// check for EOF TODO FIX
 
-	//cache CacheUsed[numLines][numSets];
-	//CacheUsed.cacheset = something; //gotta put somethin in
 
 
 	/**HITS, MISSES, AND EVICTIONS **/
@@ -190,6 +203,7 @@ int main(int argc, char** argv) {
 	switch (instruction) {
 	case 'I':
 		//this is an instruction load (ignore, it's just where we start)
+		cache.findLine();
 
 	case 'L':
 		//this is a data load; (I'm guessing a read?)
@@ -235,19 +249,6 @@ int main(int argc, char** argv) {
 
 
 
-
-/**
- * findLine: called on the cache to see if memory holds given address
- */
-/**cacheLine findLine(long tag, char instruction){
-	for (int i = 0; i < numSets; i++) {
-			for (int j = 0; j < numLines; j++) {
-				if(this->tag == tag){
-					return this;
-				}
-			}
-		}
-}
 
 
 
