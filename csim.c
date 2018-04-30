@@ -5,23 +5,23 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-//Ann Jicha ahjicha
-//Mikel Matticoli mmatticoli
+// Ann Jicha ahjicha
+// Mikel Matticoli mamatticoli
 
-//struct representing a line in cache memory
+// struct representing a line in cache memory
 typedef struct cacheLine {
 	unsigned long tag;
 	int isValid; //1 if valid, 0 if not
 	int offset;
 } CacheLine;
 
-//struct representing a set of cache line(s)
+// struct representing a set of cache line(s)
 typedef struct cacheSet {
 	int setIndex;
 	CacheLine* lines;
 } CacheSet;
 
-//struct representing the whole cache
+// struct representing the whole cache
 typedef struct cache {
 	CacheSet* set;
 } Cache;
@@ -46,9 +46,9 @@ void printUsage() {
 }
 
 int getSetIndex(long tag, int s, int b){
-	tag = tag >> b; //get rid of block bits
-	tag = tag << (64 - s - b -b); //tag bits
-	tag = tag >> (64 - s); //set index
+	tag = tag >> b; // Get rid of block bits
+	tag = tag << (64 - s - b -b); // Tag bits
+	tag = tag >> (64 - s); // Set index
 	return tag;
 }
 
@@ -67,7 +67,7 @@ cacheLine findLine(int index, long tag, char instruction){
 }
 
 int main(int argc, char** argv) {
-	//counters for hits, misses, and evictions
+	// counters for hits, misses, and evictions
 	int hit_count = 0;
 	int miss_count = 0;
 	int eviction_count = 0;
@@ -84,8 +84,8 @@ int main(int argc, char** argv) {
 	/** CHECK FOR CORRECT INPUT **/
 
 
-	//WE'RE SUPPOSED TO USE GETOPT HERE
-	//man 3 getopt
+	// WE'RE SUPPOSED TO USE GETOPT HERE
+	// man 3 getopt
 
 
 	int verbose = 0;
@@ -100,18 +100,18 @@ int main(int argc, char** argv) {
 			verbose = 1;
 
 			// Get data from args
-			s = (int)atoi(argv[3]); //number of set index bytes
-			e = (int)atoi(argv[5]); //associativity
-			b = (int)atoi(argv[7]); //number of block bytes
+			s = (int)atoi(argv[3]); // number of set index bytes
+			e = (int)atoi(argv[5]); // associativity
+			b = (int)atoi(argv[7]); // number of block bytes
 			t = argv[9];
 
 		} else if(strcmp(argv[1],"-s") >= 0 && strcmp(argv[3],"-E") >= 0
 				   && strcmp(argv[5],"-b") >= 0 && strcmp(argv[7],"-t") >= 0) {
 			// Not verbose and all strings specified
 			// Get data from args
-			s = (int)atoi(argv[2]); //number of set index bytes
-			e = (int)atoi(argv[4]); //associativity
-			b = (int)atoi(argv[6]); //number of block bytes
+			s = (int)atoi(argv[2]); // number of set index bytes
+			e = (int)atoi(argv[4]); // associativity
+			b = (int)atoi(argv[6]); // number of block bytes
 			t = argv[8];
 		} else {
 			// Not all flags specified
@@ -132,10 +132,10 @@ int main(int argc, char** argv) {
 
 	/** MAKE CACHE BASED ON SPECS (probably could/should be a separate function)**/
 
-	//allocate memory for cache
+	// allocate memory for cache
 	malloc(s * e * b);
 
-	//find cache dimensions
+	// find cache dimensions
 	int numSets = 2 << s;
 	int numLines = 2 << e;
 	int blockSize = 2 << b;
@@ -144,13 +144,13 @@ int main(int argc, char** argv) {
 	for (int i = 0; i < numSets; i++) {
 		for (int j = 0; j < numLines; j++) {
 			CacheLine *line = malloc(sizeof(CacheLine));
-			line->isValid = 0; //before anything is stored, all invalid
+			line->isValid = 0; // before anything is stored, all invalid
 			line->tag = 0; // Tag starts blank
 			line->offset = 0;
 		}
 	}
 
-	//TODO: Get rid of this once blocksize in use
+	// TODO: Get rid of this once blocksize in use
 	if(verbose) {
 		printf("%s, %d", t, blockSize);
 	}
@@ -174,20 +174,13 @@ int main(int argc, char** argv) {
 			long tag = (long)strtol(tagString, NULL, 16);
 			int numBytes = (int)atoi(numBytesString);
 
-			//THE SET INDEX (still confused)
+			// THE SET INDEX (still confused)
 
 
 
 			if(verbose) {
 				printf("Instr: %c\t Addr %s\t%ld\t NumBytes %d\n", instruction, tagString, tag, numBytes);
-//				printf("Instr %c\t", instruction);
-//				printf("Addr %s\t", tagString);
-//				printf("%ld\t", tag);
 			}
-
-//			free(tagString);
-//			free(numBytesString);
-//			free(s);
 
 		}
 
@@ -195,32 +188,32 @@ int main(int argc, char** argv) {
 
 
 
-	/**HITS, MISSES, AND EVICTIONS **/
+	/** HITS, MISSES, AND EVICTIONS **/
 
-//TODO: find a way to search cache for memory addresses
+// TODO: find a way to search cache for memory addresses
 
-	//L and S are treated the same way, M is essentially that logic but doubled
+	// L and S are treated the same way, M is essentially that logic but doubled
 	switch (instruction) {
 	case 'I':
-		//this is an instruction load (ignore, it's just where we start)
+		// This is an instruction load (ignore, it's just where we start)
 		cache.findLine();
 
 	case 'L':
-		//this is a data load; (I'm guessing a read?)
-		//at most one cache miss
+		// This is a data load; (I'm guessing a read?)
+		// At most one cache miss
 		if(cache->isValid == 1 && strcmp(cacheLine->tag, tag) == 0){
-			//if the valid bit of the line of the given address is set and the tag matches
+			// If the valid bit of the line of the given address is set and the tag matches
 			hit_count++;
 		}
 		if else{
-			//nothing is in this location, the bit is not valid or the tag does not match, cache miss
+			// Nothing is in this location, the bit is not valid or the tag does not match, cache miss
 			miss_count++;
 
 		}
 
 	case 'S':
-		//this is a data store (I'm guessing a write?)
-		//at most one cache miss
+		// This is a data store (I'm guessing a write?)
+		// At most one cache miss
 		if(cache->isValid == 1 && strcmp(cacheLine->tag, tag) == 0){
 			//if there is data there and the address is valid, data is replaced
 			hit_count++;
@@ -229,13 +222,12 @@ int main(int argc, char** argv) {
 			cacheLine->tag = tag;
 		}
 		if else(cache->isValid == 0 &&){
-			//if there is no data at the memory address and the address is valid but data does not match
-			miss_count++;
+			// If there is no data at the memory address and the address is valid but data does not match miss_count++;
 		}
 
 	case 'M':
-		//this is a data load followed by a data store
-		//two cache hits or a hit and a miss followed by a possible eviction
+		// This is a data load followed by a data store
+		// Two cache hits or a hit and a miss followed by a possible eviction
 
 	default:
 		break;
