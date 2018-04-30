@@ -193,16 +193,14 @@ int main(int argc, char **argv) {
             // Get tag and numBytes
             char *locString = malloc(sizeof(char) * 16); // Assume 10 max length of string (16^10 possible addresses)
             int *numBytesPtr = malloc(sizeof(int));
-            printf("\n%s\n", str + 3);
             sscanf(str + 3, "%s,%d", locString, numBytesPtr);
-            long loc = (long) strtol(locString, NULL, 10);
-            int numBytes = *numBytesPtr;//(int) atoi(numBytes);
+            long loc = (long) strtol(locString, NULL, 16);
+            int numBytes = atoi(str + strlen(locString) + 2);//(int) atoi(numBytes);
 
             if(DEBUG) printf("Instruction parsed\n");
 
             if (verbose && (loc || numBytes)) {
-            	printf("%c %s \n", instruction, locString);
-                printf("%c %ld\t%d ", instruction, loc, numBytes);
+            	printf("%s ", (str[0] == ' ' ? str + 1 : str));
             }
 
             // Now process the instruction
@@ -220,6 +218,7 @@ int main(int argc, char **argv) {
                     // Load followed by save (processInstruction gets called twice)
                     processInstruction(line, setIndex, tag, numLines);
                     line = getLine(setIndex, tag, numLines);
+                    /* no break */
                 case 'L': // Data Load
                 case 'S': // Data Store
                     // These are both handled the same for the purposes of this simulation
@@ -246,7 +245,7 @@ int main(int argc, char **argv) {
 
 void printUsage() {
     printf("./csim-ref: Missing required command line argument\n"
-                   "Usage: ./csim-ref [-hv] -s <num> -E <num> -b <num> -t <file>\n"
+                   "Usage: ./csim [-hv] -s <num> -E <num> -b <num> -t <file>\n"
                    "Arguments must be in order!\n\n"
                    "Options:\n"
                    "  -h         Print this help message.\n"
@@ -257,8 +256,8 @@ void printUsage() {
                    "  -t <file>  Trace file.\n"
                    "\n"
                    "Examples:\n"
-                   "  linux>  ./csim-ref -s 4 -E 1 -b 4 -t traces/yi.trace\n"
-                   "  linux>  ./csim-ref -v -s 8 -E ` -b 4 -t traces/yi.trace\n");
+                   "  linux>  ./csim -s 4 -E 1 -b 4 -t traces/yi.trace\n"
+                   "  linux>  ./csim -v -s 8 -E ` -b 4 -t traces/yi.trace\n");
     exit(1);
 }
 
@@ -305,7 +304,7 @@ CacheLine *getEmptyLine(int setIndex, int numLines) {
 	}
 	printf("eviction ");
 	eviction_count++;
-	line->isValid = 0;
+//	line->isValid = 0;
 	return line;
 }
 
