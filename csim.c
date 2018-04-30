@@ -5,26 +5,28 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <time.h>
 // Ann Jicha ahjicha
 // Mikel Matticoli mamatticoli
 
-#define DEBUG 1
+#define DEBUG 0
 
 // struct representing a line in cache memory
 typedef struct cacheLine {
     unsigned long tag;
     int isValid; //1 if valid, 0 if not
     int offset;
+    time_t access;
 } CacheLine;
 
 // struct representing a set of cache line(s)
 typedef struct cacheSet {
-    CacheLine *lines;
+    CacheLine **lines;
 } CacheSet;
 
 // struct representing the whole cache
 typedef struct cache {
-    CacheSet *sets;
+    CacheSet **sets;
 } Cache;
 
 
@@ -69,8 +71,13 @@ CacheLine *getLine(int setIndex, long tag, int linesPerSet);
 /*
  * Processes load/store for a cache line
  * @params line pointer to cache line to process save/load for
+ * @param setIndex set index
+ * @param tag tag
+ * @param omitNewline 1 if omit newline in print statement else 0
+ * @param numLines cache block size thing
+ *
  */
-void processInstruction(CacheLine *line);
+void processInstruction(CacheLine *line, int setIndex, long tag, int numLines);
 
 
 int main(int argc, char **argv) {
@@ -147,13 +154,14 @@ int main(int argc, char **argv) {
 
     // initialize cache with input dimensions
     cache = malloc(sizeof(Cache));
-    cache->sets = (CacheSet *) malloc(sizeof(CacheSet) * numSets);
+    cache->sets = (CacheSet **) malloc(sizeof(CacheSet *) * numSets);
     for (int i = 0; i < numSets; i++) {
         CacheSet *set = malloc(sizeof(CacheSet));
-        cache->sets[i] = *set;//TODO Fix this shit when it inevitably segfaults
-        set->lines = malloc(sizeof(CacheLine) * numLines);
+        cache->sets[i] = set;//TODO Fix this shit when it inevitably segfaults
+        set->lines = malloc(sizeof(CacheLine *) * numLines);
         for (int j = 0; j < numLines; j++) {
             CacheLine *line = malloc(sizeof(CacheLine));
+            set->lines[j] = line;
             line->isValid = 0; // before anything is stored, all invalid
             line->tag = 0; // Tag starts blank (This technically isn't necessary but whatever)
             line->offset = 0; // Don't even know what this is for yet
@@ -166,16 +174,16 @@ int main(int argc, char **argv) {
 
     // TODO: find a way to search cache for memory addresses
 
-    cache = malloc(sizeof(Cache)); // TODO fix this later cuz we're using longs (does not include overhead)
-
     if (!cache) {
         // Failed to allocate cache
         printf("Failed to allocate memory for cache");
         exit(1);
     }
 
+    char *str;
+
     do {
-        char *str = malloc(sizeof(char) * 20); // valgrind line
+        str = malloc(sizeof(char) * 20); // valgrind line
         fgets(str, 20, valgrind);
         if (str) { // If not nullptr
             if(DEBUG) printf("Valgrind line:\t%s\n", str);
@@ -183,16 +191,18 @@ int main(int argc, char **argv) {
             char instruction = str[0] == ' ' ? str[1] : str[0];
 
             // Get tag and numBytes
-            char *locString = malloc(sizeof(char) * 10); // Assume 10 max length of string (16^10 possible addresses)
-            char *numBytesString = malloc(sizeof(char) * 2);
-            sscanf(str + 3, "%s,%s", locString, numBytesString);
-            long loc = (long) strtol(locString, NULL, 16);
-            int numBytes = (int) atoi(numBytesString);
+            char *locString = malloc(sizeof(char) * 16); // Assume 10 max length of string (16^10 possible addresses)
+            int *numBytesPtr = malloc(sizeof(int));
+            printf("\n%s\n", str + 3);
+            sscanf(str + 3, "%s,%d", locString, numBytesPtr);
+            long loc = (long) strtol(locString, NULL, 10);
+            int numBytes = *numBytesPtr;//(int) atoi(numBytes);
 
             if(DEBUG) printf("Instruction parsed\n");
 
-            if (verbose) {
-                printf("%c %ld,%d ", instruction, loc, numBytes);
+            if (verbose && (loc || numBytes)) {
+            	printf("%c %s \n", instruction, locString);
+                printf("%c %ld\t%d ", instruction, loc, numBytes);
             }
 
             // Now process the instruction
@@ -208,11 +218,13 @@ int main(int argc, char **argv) {
             switch (instruction) {
                 case 'M':
                     // Load followed by save (processInstruction gets called twice)
-                    processInstruction(line);
+                    processInstruction(line, setIndex, tag, numLines);
+                    line = getLine(setIndex, tag, numLines);
                 case 'L': // Data Load
                 case 'S': // Data Store
                     // These are both handled the same for the purposes of this simulation
-                    processInstruction(line);
+                    processInstruction(line, setIndex, tag, numLines);
+                    printf("\n");
                     break;
                 case 'I':
                     // This is an instruction load (ignore, it's just where we start)
@@ -223,9 +235,11 @@ int main(int argc, char **argv) {
 
         }
 
-    } while (s != EOF);// check for EOF TODO FIX
+    } while (strlen(str) > 0);
 
-    /** RETURN **/
+    printf("\n");
+
+
     printSummary(hit_count, miss_count, eviction_count);
     return 0;
 }
@@ -250,7 +264,7 @@ void printUsage() {
 
 long getTagFromLoc(long loc, int lineLength) {
     long tag = loc - (loc % lineLength);// (tag is loc % lineSize);
-    printf("\nConverted loc %ld to tag %ld (line %d)\n", loc, tag, lineLength);
+    if(DEBUG) printf("\nConverted loc %ld to tag %ld (line %d)\n", loc, tag, lineLength);
     return tag;
 }
 
@@ -263,30 +277,59 @@ int getSetIndex(long tag, int s, int b) {
 
 CacheLine *getLine(int setIndex, long tag, int linesPerSet) {
     if(DEBUG) printf("getLine(%d, %ld, %d);\n", setIndex, tag, linesPerSet);
-    CacheSet *set = cache->sets + (setIndex * sizeof(CacheSet));
+    CacheSet *set = cache->sets[setIndex];
 // Index of line is tag / block size
     for (int j = 0; j < linesPerSet; j++) {
-            printf("yeet\n");
-        if (set->lines[j].tag == tag && set->lines[j].isValid) {
-            return &set->lines[j];//TODO will prob segfault due to scope
+        if (set->lines[j]->tag == tag && set->lines[j]->isValid) {
+            return set->lines[j];
         }
     }
     return NULL;
 }
 
+CacheLine *getEmptyLine(int setIndex, int numLines) {
+	CacheSet *set = cache->sets[setIndex];
+	CacheLine *line;
+	time_t leastRecent = time(NULL);
+	for(int i = 0; i < numLines; i++) {
+		CacheLine *currentLine = set->lines[i];
+		if(!(currentLine->isValid)) {
+			return currentLine;
+		} else {
+			// valid block, check time
+			if(currentLine->access < leastRecent) {
+				leastRecent = currentLine->access;
+				line = currentLine;
+			}
+		}
+	}
+	printf("eviction ");
+	eviction_count++;
+	line->isValid = 0;
+	return line;
+}
 
-void processInstruction(CacheLine *line) {
+
+void processInstruction(CacheLine *line, int setIndex, long tag, int numLines) {
 
     // At most one cache miss
     if(!line) {
         // Cache Miss, increment counter and cache it
         miss_count++;
-        printf("miss\n");
-        // TODO eviction?
+        printf("miss ");
+        CacheLine *line = getEmptyLine(setIndex, numLines);
+        if(!line || line->isValid) {
+        	printf("Something broke\n");
+        	exit(1);
+        } else {
+        	line->tag = tag;
+        	line->isValid = 1;
+        }
     } else {
         // Cache Hit, increment counter and continue
         hit_count++;
-        printf("hit\n");
+        printf("hit ");
+        line->access = time(NULL);
     }
 }
 
