@@ -16,7 +16,7 @@ typedef struct cacheLine {
     unsigned long tag;
     int isValid; //1 if valid, 0 if not
     int offset;
-    time_t access;
+    int access;
 } CacheLine;
 
 // struct representing a set of cache line(s)
@@ -37,6 +37,9 @@ Cache *cache;
 int hit_count = 0;
 int miss_count = 0;
 int eviction_count = 0;
+
+// Keep track of program loop iterations for LRU functionality
+int loop_count = 0;
 
 /*
  * Prints out usage text for invalid input or help
@@ -167,6 +170,9 @@ int main(int argc, char **argv) {
     char *str;
 
     do {
+    	// Increment loop counter so cache line knows when it's being accessed
+    	loop_count++;
+
         str = malloc(sizeof(char) * 20); // valgrind line
         fgets(str, 20, valgrind);
         if (str) { // If not nullptr
@@ -229,7 +235,6 @@ int main(int argc, char **argv) {
             }
 
         }
-
     } while (strlen(str) > 0);
 
     printSummary(hit_count, miss_count, eviction_count);
@@ -284,7 +289,8 @@ CacheLine *getLine(int setIndex, long tag, int linesPerSet) {
 CacheLine *getEmptyLine(int setIndex, int numLines) {
 	CacheSet *set = cache->sets[setIndex];
 	CacheLine *line;
-	time_t leastRecent = time(NULL);
+	int leastRecent = loop_count;
+
 	if (DEBUG) printf("Looking for empty line in set %d...\n", setIndex);
 	for(int i = 0; i < numLines; i++) {
 		CacheLine *currentLine = set->lines[i];
@@ -294,13 +300,16 @@ CacheLine *getEmptyLine(int setIndex, int numLines) {
 		} else {
 			// valid block, check time
 			if(DEBUG) printf("Line is valid, compare access time %d to leastRecent %d\n", (int)currentLine->access, (int)leastRecent);
-			if(!line || currentLine->access <= leastRecent) {
+			if(!line || currentLine->access < leastRecent) {
 				leastRecent = currentLine->access;
 				line = currentLine;
 			}
 		}
 	}
+
+
 	printf("eviction ");
+	if (DEBUG) printf("\nEvicting %lx : %d last accessed at %d\n", line->tag, line->isValid, line->access);
 	eviction_count++;
 	line->isValid = 0;
 	return line;
@@ -315,16 +324,17 @@ void processInstruction(CacheLine *line, int setIndex, long tag, int numLines) {
         miss_count++;
         printf("miss ");
         CacheLine *line = getEmptyLine(setIndex, numLines);
+
         if(line) {
         	line->tag = tag;
         	line->isValid = 1;
-        	line->access = time(NULL);
+        	line->access = loop_count;
         }
     } else {
         // Cache Hit, increment counter and continue
         hit_count++;
         printf("hit ");
-        line->access = time(NULL);
+        line->access = loop_count;
     }
 }
 
