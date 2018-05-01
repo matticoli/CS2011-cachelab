@@ -22,6 +22,54 @@ int is_transpose(int M, int N, int A[N][M], int B[M][N]);
 char transpose_submit_desc[] = "Transpose submission";
 void transpose_submit(int M, int N, int A[N][M], int B[M][N])
 {
+	/** AND HERE WE TRY FOR TRICKY MATH WITH THE GOAL OF CALCULATING A SYMMETRIC BLOCK SIZE**/
+	rowTest = M - (M % 2); //gives even num rows if not already
+	colTest = N - (N % 2); //gives even num columns if not already
+	test = rowTest / colTest; //checks if they are now equal
+	if(test == 1){
+		//the block is a square
+		//blockSize = colTest; //rows and columns are now same number
+	}
+	else(test != 1){
+		//the block has to be a rectangle with dimensions rowTest and colTest
+		//TODO: IMPLEMENT THESE DIMENSIONS SEPARATELY!!!
+	}
+
+
+	int i, j, k, savedVal, diagLoc, diag, blockSize, rowTest, colTest = 0; //CURRENT LOCAL VARIABLE COUNT: 9 (can't go above 12)
+	//i is row, j is column
+
+	if(M == N){
+
+	}
+	else if(M != N){
+
+	}
+/**	//CANNOT ASSUME M AND N ARE THE SAME
+	for(i = 0; i < M; i+=blockSize){
+	//rows for loop
+		for(j = 0; j < N; j+=blockSize){
+		//columns for loop
+			for(k = 0; k < N; k+=blockSize){ **/
+				/* blockSize x blockSize mini matrix transposes */
+/**				if(i != j){
+					B[i][j] = A[i][j];
+				}
+				else{
+					//it's along the diagonal
+					savedVal = A[i][j];
+					diagLoc = i;
+					diag = 1;
+				}
+
+			}
+			if(diag == 1){
+				B[diagLoc][diagLoc] = savedVal;
+				diag = 0;
+			}
+
+		}
+	}**/
 }
 
 /* 
