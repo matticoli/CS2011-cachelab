@@ -1,6 +1,6 @@
 Any copyrighted frameworks/plug-ins/code/content included as part of this repository that were created by entities not listed below or otherwise specified as contributors to this project, and are the copyright of their original authors and thus subject to any applicable licenses.
 
- Copyright 2018 Mikel Matticoli
+ Copyright 2018 Mikel Matticoli, Ann Jicha
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
